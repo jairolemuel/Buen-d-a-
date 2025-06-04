@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const palavras = ["Te", "amo", "Gabriel", "🧡"];
 
-  // Ocultar el GIF y empezar lluvia + animación PixiJS después de 4 segundos
+  // Ocultar el GIF y comenzar animaciones después de 4 segundos
   setTimeout(() => {
     gifContainer.style.opacity = "0";
     setTimeout(() => {
@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startPixiAnimation() {
-    // Inicializa PixiJS
     const app = new PIXI.Application({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -62,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const coracoes = [];
 
-    // Función para crear corazones que caen
     function criarTexto() {
       const texto = new PIXI.Text("🧡", {
         fontFamily: "Courier New",
@@ -74,13 +72,39 @@ document.addEventListener("DOMContentLoaded", () => {
         dropShadowColor: "#FF8C00",
         dropShadowBlur: 4,
       });
+
       texto.x = Math.random() * app.renderer.width;
       texto.y = -50;
+      texto.interactive = true;
+      texto.buttonMode = true;
+
+      texto.on("pointerdown", () => {
+        const sparkleSound = document.getElementById("sparkleSound");
+        if (sparkleSound) {
+          sparkleSound.currentTime = 0;
+          sparkleSound.play();
+        }
+
+        gsap.to(texto.scale, {
+          x: 2,
+          y: 2,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          ease: "power1.inOut",
+          onComplete: () => {
+            explodeMiniHeart(texto.x, texto.y);
+            app.stage.removeChild(texto);
+            const index = coracoes.indexOf(texto);
+            if (index !== -1) coracoes.splice(index, 1);
+          },
+        });
+      });
+
       app.stage.addChild(texto);
       coracoes.push(texto);
     }
 
-    // Animación de mini corazones explosivos
     function explodeMiniHeart(x, y) {
       const explosion = new PIXI.Container();
       app.stage.addChild(explosion);
@@ -108,7 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         miniHeart.alpha = 1;
-
         explosion.addChild(miniHeart);
 
         app.ticker.add(function anim() {
@@ -127,26 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1000);
     }
 
-    // Detectar click en corazones para explotar mini corazones
-    app.stage.interactive = true;
-    app.stage.on("pointerdown", (event) => {
-      const pos = event.data.global;
-      coracoes.forEach((texto, index) => {
-        const bounds = texto.getBounds();
-        if (
-          pos.x >= bounds.x &&
-          pos.x <= bounds.x + bounds.width &&
-          pos.y >= bounds.y &&
-          pos.y <= bounds.y + bounds.height
-        ) {
-          explodeMiniHeart(texto.x, texto.y);
-          app.stage.removeChild(texto);
-          coracoes.splice(index, 1);
-        }
-      });
-    });
-
-    // Animar caída de corazones
     app.ticker.add(() => {
       coracoes.forEach((texto) => {
         texto.y += 2;
@@ -161,54 +164,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Ajustar tamaño al redimensionar ventana
     window.addEventListener("resize", () => {
       app.renderer.resize(window.innerWidth, window.innerHeight);
     });
-  }
-});
-// Activar interacción por corazón con GSAP y audio chispa
-function prepararCoracoesInterativos() {
-  coracoes.forEach((coracao, index) => {
-    coracao.interactive = true;
-    coracao.buttonMode = true;
-    coracao.on("pointerdown", () => {
-      const sparkleSound = document.getElementById("sparkleSound");
-      if (sparkleSound) {
-        sparkleSound.currentTime = 0;
-        sparkleSound.play();
-      }
-
-      // Animar explosión con GSAP
-      gsap.to(coracao.scale, {
-        x: 2,
-        y: 2,
-        duration: 0.2,
-        yoyo: true,
-        repeat: 1,
-        ease: "power1.inOut",
-        onComplete: () => {
-          explodeMiniHeart(coracao.x, coracao.y);
-          app.stage.removeChild(coracao);
-          coracoes.splice(index, 1);
-        },
-      });
-    });
-  });
-}
-
-// Llamar a esta función dentro del ticker o cuando creás nuevos corazones
-app.ticker.add(() => {
-  coracoes.forEach((texto) => {
-    texto.y += 2;
-    if (texto.y > app.renderer.height) {
-      texto.y = -50;
-      texto.x = Math.random() * app.renderer.width;
-    }
-  });
-
-  if (Math.random() < 0.1) {
-    criarTexto();
-    prepararCoracoesInterativos(); // Activar corazones nuevos
   }
 });

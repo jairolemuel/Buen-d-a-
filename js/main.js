@@ -167,3 +167,48 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+// Activar interacción por corazón con GSAP y audio chispa
+function prepararCoracoesInterativos() {
+  coracoes.forEach((coracao, index) => {
+    coracao.interactive = true;
+    coracao.buttonMode = true;
+    coracao.on("pointerdown", () => {
+      const sparkleSound = document.getElementById("sparkleSound");
+      if (sparkleSound) {
+        sparkleSound.currentTime = 0;
+        sparkleSound.play();
+      }
+
+      // Animar explosión con GSAP
+      gsap.to(coracao.scale, {
+        x: 2,
+        y: 2,
+        duration: 0.2,
+        yoyo: true,
+        repeat: 1,
+        ease: "power1.inOut",
+        onComplete: () => {
+          explodeMiniHeart(coracao.x, coracao.y);
+          app.stage.removeChild(coracao);
+          coracoes.splice(index, 1);
+        },
+      });
+    });
+  });
+}
+
+// Llamar a esta función dentro del ticker o cuando creás nuevos corazones
+app.ticker.add(() => {
+  coracoes.forEach((texto) => {
+    texto.y += 2;
+    if (texto.y > app.renderer.height) {
+      texto.y = -50;
+      texto.x = Math.random() * app.renderer.width;
+    }
+  });
+
+  if (Math.random() < 0.1) {
+    criarTexto();
+    prepararCoracoesInterativos(); // Activar corazones nuevos
+  }
+});

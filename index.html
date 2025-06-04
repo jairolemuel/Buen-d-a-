@@ -27,6 +27,55 @@
       z-index: 1;
     }
 
+    #rain {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 5;
+    }
+
+    .palavra {
+      position: absolute;
+      top: -2rem;
+      color: #FFA500;
+      font-family: 'Courier New', monospace;
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00;
+      pointer-events: auto;
+      animation-name: cair;
+      animation-timing-function: linear;
+      animation-fill-mode: forwards;
+    }
+
+    @keyframes cair {
+      to {
+        top: 100vh;
+      }
+    }
+
+    .explosion {
+      position: absolute;
+      pointer-events: none;
+      width: 40px;
+      height: 40px;
+      user-select: none;
+    }
+
+    .mini-heart {
+      position: absolute;
+      color: #FFA500;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00;
+      user-select: none;
+      pointer-events: none;
+    }
+
     .neon-text {
       color: #FFA500;
       text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00, 0 0 20px #FF8C00;
@@ -78,6 +127,9 @@
     <img src="https://media.giphy.com/media/l0MYEWpv7Ue0RFVaE/giphy.gif" alt="Stitch animado" />
     <div class="mensagem">Bom dia</div>
   </div>
+
+  <!-- Contêiner para a chuva de palavras -->
+  <div id="rain"></div>
 
   <!-- Container PixiJS -->
   <div id="stage"></div>

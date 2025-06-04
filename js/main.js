@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const gifContainer = document.querySelector(".intro-stitch");
   const rainContainer = document.getElementById("rain");
 
+  // Palabras para la lluvia
   const palavras = ["Te", "amo", "Gabriel", "🧡"];
 
-  // Sonidos
+  // Sonidos (asegúrate de que estén en js/sparkle.mp3 y js/click.mp3)
   const sparkleSound = document.getElementById("sparkleSound");
   const clickSound = document.getElementById("clickSound");
 
@@ -18,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }, 4000);
 
+  // --------------------------------
+  // Lluvia de palabras HTML/CSS
+  // --------------------------------
   function startRain() {
     setInterval(() => {
       const palavra = document.createElement("div");
@@ -28,28 +32,33 @@ document.addEventListener("DOMContentLoaded", () => {
       palavra.style.animationDuration = 2 + Math.random() * 3 + "s";
       rainContainer.appendChild(palavra);
 
+      // Cuando la animación termina, remueve el elemento
       palavra.addEventListener("animationend", () => palavra.remove());
+
+      // Al hacer clic en la palabra, suena clickSound y explota mini‑corazones HTML
       palavra.addEventListener("click", () => {
         if (clickSound) {
           clickSound.currentTime = 0;
           clickSound.play();
         }
-        explode(palavra);
+        explodeHTML(palavra);
       });
     }, 200);
   }
 
-  function explode(element) {
+  function explodeHTML(element) {
     const explosion = document.createElement("div");
     explosion.className = "explosion";
     explosion.style.left = element.style.left;
     explosion.style.top = element.offsetTop + "px";
 
+    // Genera 15 mini‑corazones HTML dispersos
     for (let i = 0; i < 15; i++) {
       const miniHeart = document.createElement("div");
       miniHeart.className = "mini-heart";
       miniHeart.style.left = Math.random() * 30 - 15 + "px";
       miniHeart.style.top = Math.random() * 30 - 15 + "px";
+      miniHeart.innerText = "🧡";
       explosion.appendChild(miniHeart);
     }
 
@@ -58,7 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => explosion.remove(), 1200);
   }
-    function startPixiAnimation() {
+    // --------------------------------
+  // Animación PixiJS + GSAP + sonido
+  // --------------------------------
+  function startPixiAnimation() {
     const app = new PIXI.Application({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -71,11 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const coracoes = [];
 
-    // Crear un texto con corazón naranja, interactivo
+    // Función para crear un corazón PixiJS que cae
     function criarTexto() {
       const texto = new PIXI.Text("🧡", {
         fontFamily: "Courier New",
-        fontSize: 30,
+        fontSize:  thirtyPixelsFont(), // función auxiliar para tamaño uniforme
         fill: "#FFA500",
         stroke: "#FF8C00",
         strokeThickness: 2,
@@ -88,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
       texto.y = -50;
       texto.interactive = true;
       texto.buttonMode = true;
+      texto.scale.set(1);
 
       texto.on("pointerdown", () => {
         if (sparkleSound) {
@@ -95,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
           sparkleSound.play();
         }
 
-        // Animación con GSAP para agrandar y achicar el corazón
+        // Animación GSAP: el corazón crece y vuelve a su tamaño original
         gsap.to(texto.scale, {
           x: 2,
           y: 2,
@@ -116,17 +129,22 @@ document.addEventListener("DOMContentLoaded", () => {
       coracoes.push(texto);
     }
 
-    // Explosión mejorada con muchos corazones y chispas
+    // Función auxiliar para tamaño de fuente (30px)
+    function thirtyPixelsFont() {
+      return 30;
+    }
+
+    // Explosión PixiJS con muchos corazones y chispas
     function explodePixi(x, y) {
       const explosion = new PIXI.Container();
       app.stage.addChild(explosion);
 
-      const totalParticles = 40; // cantidad grande para explosión más espectacular
+      const totalParticles = 40; // número de partículas (mayor = explosión más grande)
 
       for (let i = 0; i < totalParticles; i++) {
-        // Alternar entre corazones y chispas (pequeños círculos brillantes)
+        // Cada 5 partículas, genera una chispa (círculo); las demás son mini‑corazones
         if (i % 5 === 0) {
-          // chispa (pequeño círculo)
+          // chispa (pequeño círculo brillante)
           const sparkle = new PIXI.Graphics();
           sparkle.beginFill(0xFFA500);
           sparkle.drawCircle(0, 0, 3 + Math.random() * 2);
@@ -154,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           });
         } else {
-          // mini corazón
+          // mini‑corazón naranja
           const miniHeart = new PIXI.Text("🧡", {
             fontFamily: "Courier New",
             fontSize: 16,
@@ -169,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
           miniHeart.x = x;
           miniHeart.y = y;
           miniHeart.alpha = 1;
+          miniHeart.anchor.set(0.5);
 
           const angle = Math.random() * Math.PI * 2;
           const speed = 3 + Math.random() * 3;
@@ -191,12 +210,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      // Quitar el contenedor completo tras 1.2s para liberar memoria
+      // Elimina todo el contenedor de explosión después de 1.2 s
       setTimeout(() => {
-        app.stage.removeChild(explosion);
+        if (explosion.parent) {
+          app.stage.removeChild(explosion);
+        }
       }, 1200);
     }
 
+    // Ticker principal: hace caer corazones y crea nuevos aleatoriamente
     app.ticker.add(() => {
       coracoes.forEach((texto) => {
         texto.y += 2;
@@ -211,6 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Ajustar tamaño de Render al cambiar la ventana
     window.addEventListener("resize", () => {
       app.renderer.resize(window.innerWidth, window.innerHeight);
     });

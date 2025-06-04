@@ -59,3 +59,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1000);
   }
 });
+      const velocidade = Math.random() * 2 + 1;
+      const direcaoX = Math.cos(angulo) * velocidade;
+      const direcaoY = Math.sin(angulo) * velocidade;
+
+      app.ticker.add(() => {
+        mini.x += direcaoX;
+        mini.y += direcaoY;
+        mini.alpha -= 0.02;
+        if (mini.alpha <= 0) {
+          app.stage.removeChild(mini);
+        }
+      });
+    }
+  }
+
+  app.ticker.add(() => {
+    coracoes.forEach(texto => {
+      texto.y += 2;
+      if (texto.y > app.renderer.height) {
+        texto.y = -50;
+        texto.x = Math.random() * app.renderer.width;
+      }
+    });
+
+    if (Math.random() < 0.1) {
+      criarTexto();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+  });
+}

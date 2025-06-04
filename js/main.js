@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
       miniHeart.className = "mini-heart";
       miniHeart.style.left = Math.random() * 20 - 10 + "px";
       miniHeart.style.top = Math.random() * 20 - 10 + "px";
+      miniHeart.innerText = "🧡";  // Aseguramos que sean corazones mini
       explosion.appendChild(miniHeart);
     }
 
@@ -48,19 +49,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setTimeout(() => explosion.remove(), 1000);
   }
-
-  function startPixiAnimation() {
+    function startPixiAnimation() {
     const app = new PIXI.Application({
       width: window.innerWidth,
       height: window.innerHeight,
       backgroundAlpha: 0,
       resolution: window.devicePixelRatio || 1,
+      autoDensity: true,
     });
 
     document.getElementById("stage").appendChild(app.view);
 
     const coracoes = [];
 
+    // Crear un nuevo corazón en la pantalla
     function criarTexto() {
       const texto = new PIXI.Text("🧡", {
         fontFamily: "Courier New",
@@ -77,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       texto.y = -50;
       texto.interactive = true;
       texto.buttonMode = true;
+      texto.scale.set(1);
 
       texto.on("pointerdown", () => {
         const sparkleSound = document.getElementById("sparkleSound");
@@ -85,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
           sparkleSound.play();
         }
 
+        // Animación GSAP: corazón crece y vuelve a su tamaño original
         gsap.to(texto.scale, {
           x: 2,
           y: 2,
@@ -105,6 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
       coracoes.push(texto);
     }
 
+    // Explosión de mini corazones
     function explodeMiniHeart(x, y) {
       const explosion = new PIXI.Container();
       app.stage.addChild(explosion);
@@ -134,10 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
         miniHeart.alpha = 1;
         explosion.addChild(miniHeart);
 
+        // Animación manual con ticker de PixiJS para mini corazones
         app.ticker.add(function anim() {
           miniHeart.x += velocity.x;
           miniHeart.y += velocity.y;
           miniHeart.alpha -= 0.03;
+
           if (miniHeart.alpha <= 0) {
             app.ticker.remove(anim);
             explosion.removeChild(miniHeart);
@@ -150,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1000);
     }
 
+    // Actualizar posición de los corazones y crear nuevos aleatoriamente
     app.ticker.add(() => {
       coracoes.forEach((texto) => {
         texto.y += 2;
@@ -164,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // Ajustar tamaño al redimensionar ventana
     window.addEventListener("resize", () => {
       app.renderer.resize(window.innerWidth, window.innerHeight);
     });

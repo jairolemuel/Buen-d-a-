@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Te amo Gabriel 🧡</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+      font-family: 'Courier New', monospace;
+      height: 100%;
+      width: 100%;
+    }
+
+    #stage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .neon-text {
+      color: #FFA500;
+      text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00, 0 0 20px #FF8C00;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .intro-heart {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1);
+      animation: fadeOut 4s ease-out 2s forwards;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .intro-heart img {
+      width: 150px;
+      animation: pulse 2s infinite;
+    }
+
+    .intro-heart .message {
+      margin-top: 10px;
+      font-size: 1.5rem;
+      color: #FFA500;
+      text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+        display: none;
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Intro: Corazón en llamas + mensaje "Buen día" -->
+  <div class="intro-heart">
+    <img src="https://media.giphy.com/media/oe33xf3B50fsc/giphy.gif" alt="Corazón en llamas">
+    <div class="message">Buen día</div>
+  </div>
+
+  <!-- Contenedor PixiJS -->
+  <div id="stage"></div>
+
+  <!-- Segunda parte: Se carga luego con <script> -->
+</body>
+</html>
+<!-- PIXI.js CDN -->
+<script src="https://pixijs.download/release/pixi.min.js"></script>
+
+<!-- Audio embebido -->
+<audio id="sparkleSound" src="https://cdn.pixabay.com/download/audio/2023/03/13/audio_865e3d0243.mp3?filename=sparkle-144246.mp3" preload="auto"></audio>
+
+<script>
+  const app = new PIXI.Application({
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundAlpha: 0,
+    resizeTo: window
+  });
+  document.getElementById('stage').appendChild(app.view);
+
+  const words = ['Te', 'amo', 'Gabriel', '🧡'];
+  const wordContainer = new PIXI.Container();
+  const heartContainer = new PIXI.Container();
+  app.stage.addChild(wordContainer, heartContainer);
+
+  const sparkleSound = document.getElementById('sparkleSound');
+
+  function createFallingWord() {
+    const word = new PIXI.Text(words[Math.floor(Math.random() * words.length)], {
+      fontFamily: 'Courier New',
+      fontSize: 28,
+      fill: '#FFA500',
+      align: 'center',
+      dropShadow: true,
+      dropShadowBlur: 6,
+      dropShadowColor: '#FF8C00'
+    });
+    word.x = Math.random() * app.screen.width;
+    word.y = -50;
+    word.vy = 1 + Math.random() * 2;
+    word.interactive = true;
+    word.buttonMode = true;
+    word.on('pointerdown', () => {
+      sparkleSound.currentTime = 0;
+      sparkleSound.play();
+      explodeHearts(word.x, word.y);
+      wordContainer.removeChild(word);
+    });
+    wordContainer.addChild(word);
+  }
+
+  function createFallingHeart() {
+    const heart = new PIXI.Text('🧡', {
+      fontFamily: 'Courier New',
+      fontSize: 24 + Math.random() * 10,
+      fill: '#FFA500',
+    });
+    heart.x = Math.random() * app.screen.width;
+    heart.y = -30;
+    heart.vy = 1 + Math.random() * 2;
+    heart.interactive = true;
+    heart.buttonMode = true;
+    heart.on('pointerdown', () => {
+      sparkleSound.currentTime = 0;
+      sparkleSound.play();
+      explodeHearts(heart.x, heart.y);
+      heartContainer.removeChild(heart);
+    });
+    heartContainer.addChild(heart);
+  }
+
+  function explodeHearts(x, y) {
+    for (let i = 0; i < 8; i++) {
+      const miniHeart = new PIXI.Text('🧡', {
+        fontFamily: 'Courier New',
+        fontSize: 16,
+        fill: '#FFA500',
+      });
+      miniHeart.x = x;
+      miniHeart.y = y;
+      miniHeart.vx = (Math.random() - 0.5) * 6;
+      miniHeart.vy = (Math.random() - 0.5) * 6;
+      heartContainer.addChild(miniHeart);
+
+      app.ticker.add(() => {
+        miniHeart.x += miniHeart.vx;
+        miniHeart.y += miniHeart.vy;
+        miniHeart.alpha -= 0.02;
+        if (miniHeart.alpha <= 0) {
+          heartContainer.removeChild(miniHeart);
+        }
+      });
+    }
+  }
+
+  app.ticker.add(() => {
+    for (let word of wordContainer.children) {
+      word.y += word.vy;
+      if (word.y > app.screen.height) {
+        wordContainer.removeChild(word);
+      }
+    }
+    for (let heart of heartContainer.children) {
+      heart.y += heart.vy;
+      if (heart.y > app.screen.height) {
+        heartContainer.removeChild(heart);
+      }
+    }
+  });
+
+  setInterval(createFallingWord, 400);
+  setInterval(createFallingHeart, 600);
+</script>

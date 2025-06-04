@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="cache-control" content="no-cache" />
-  <meta http-equiv="expires" content="0" />
-  <meta http-equiv="pragma" content="no-cache" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Te amo Gabriel 🧡</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: #000;
       overflow: hidden;
+      background-color: #000;
       font-family: 'Courier New', monospace;
       height: 100%;
       width: 100%;
@@ -26,139 +25,104 @@
       height: 100%;
     }
 
-    .neon-text {
-      color: #FFA500;
-      font-size: 3rem;
-      text-shadow: 0 0 10px #FFA500, 0 0 20px #FF8C00;
+    .intro-stitch {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 20;
-      animation: fadeOut 2s ease-in 5s forwards;
-    }
-
-    .intro-heart {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      animation: fadeOut 4s ease-out 3s forwards;
       z-index: 10;
-      animation: fadeOut 2s ease-in 5s forwards;
+      text-align: center;
     }
 
-    .intro-heart img {
+    .intro-stitch img {
       width: 300px;
-      max-width: 80vw;
+      height: auto;
       animation: pulse 2s infinite;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+    .intro-stitch .message {
+      margin-top: 10px;
+      font-size: 2rem;
+      color: #FFA500;
+      text-shadow: 0 0 5px #FFA500, 0 0 10px #FF8C00;
     }
 
     @keyframes fadeOut {
       to {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.7);
+        transform: translate(-50%, -50%) scale(0.5);
       }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
 <body>
-  <div class="intro-heart">
-    <img src="https://media.tenor.com/0AV9Fg5f9iYAAAAC/heart-on-fire-burning.gif" alt="Corazón en llamas" />
+  <div class="intro-stitch">
+    <img src="https://media.tenor.com/3N6mwD2Pb9YAAAAC/stitch-love.gif" alt="Stitch corazón">
+    <div class="message">Te amo Gabriel 🧡</div>
   </div>
-  <div class="neon-text">Te amo Gabriel 🧡</div>
+
   <div id="stage"></div>
-
-  <audio id="sparkleSound" src="https://cdn.pixabay.com/download/audio/2023/03/13/audio_865e3d0243.mp3?filename=sparkle-144246.mp3" preload="auto"></audio>
-
-  <script src="https://pixijs.download/release/pixi.min.js"></script>
+    <script src="https://pixijs.download/release/pixi.min.js"></script>
   <script>
-    setTimeout(() => {
-      document.querySelector('.intro-heart').remove();
-      document.querySelector('.neon-text').remove();
-            iniciarLluvia();
-    }, 5500);
+    const app = new PIXI.Application({
+      view: document.getElementById("stage"),
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundColor: 0x000000,
+      resolution: window.devicePixelRatio || 1,
+      autoDensity: true
+    });
 
-    function iniciarLluvia() {
-      const app = new PIXI.Application({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        backgroundAlpha: 0
-      });
-      document.getElementById("stage").appendChild(app.view);
+    const TEXTS = ["Te", "amo", "Gabriel", "🧡"];
+    const TEXT_STYLE = new PIXI.TextStyle({
+      fill: "#FFA500",
+      fontSize: 40,
+      fontFamily: "Courier New",
+      fontWeight: "bold",
+      dropShadow: true,
+      dropShadowDistance: 1,
+      dropShadowBlur: 2,
+      dropShadowColor: "#FF8C00"
+    });
 
-      const mensajes = ["Te amo Gabriel 🧡"];
-      const palabras = [];
+    const fallingWords = [];
 
-      function crearPalabra() {
-        const estilo = new PIXI.TextStyle({
-          fontFamily: "Courier New",
-          fontSize: 20 + Math.random() * 10,
-          fill: "#FFA500",
-          dropShadow: true,
-          dropShadowColor: "#FF8C00",
-          dropShadowDistance: 2
-        });
-
-        const texto = new PIXI.Text(
-          mensajes[Math.floor(Math.random() * mensajes.length)],
-          estilo
-        );
-        texto.x = Math.random() * app.renderer.width;
-        texto.y = -50;
-        texto.speed = 1 + Math.random() * 2;
-        app.stage.addChild(texto);
-        palabras.push(texto);
-      }
-
-      app.ticker.add(() => {
-        if (Math.random() < 0.3) crearPalabra();
-        for (let i = palabras.length - 1; i >= 0; i--) {
-          const p = palabras[i];
-          p.y += p.speed;
-          if (p.y > app.renderer.height) {
-            app.stage.removeChild(p);
-            palabras.splice(i, 1);
-          }
-        }
-      });
-
-      app.view.addEventListener("pointerdown", (event) => {
-        const pos = event.data ? event.data.global : event;
-        const clickSound = document.getElementById("sparkleSound");
-        if (clickSound) clickSound.play();
-
-        for (let i = 0; i < 6; i++) {
-          const mini = new PIXI.Text("🧡", {
-            fontFamily: "Courier New",
-            fontSize: 16,
-            fill: "#FFA500"
-          });
-          mini.x = pos.x;
-          mini.y = pos.y;
-          mini.vx = (Math.random() - 0.5) * 5;
-          mini.vy = (Math.random() - 0.5) * 5;
-          app.stage.addChild(mini);
-
-          const animar = () => {
-            mini.x += mini.vx;
-            mini.y += mini.vy;
-            mini.vy += 0.1;
-            mini.alpha -= 0.02;
-            if (mini.alpha <= 0) {
-              app.stage.removeChild(mini);
-              app.ticker.remove(animar);
-            }
-          };
-          app.ticker.add(animar);
-        }
-      });
+    function createWord() {
+      const word = new PIXI.Text(TEXTS[Math.floor(Math.random() * TEXTS.length)], TEXT_STYLE);
+      word.x = Math.random() * app.screen.width;
+      word.y = -50;
+      word.speed = 1 + Math.random() * 3;
+      app.stage.addChild(word);
+      fallingWords.push(word);
     }
+
+    function animate() {
+      for (let i = fallingWords.length - 1; i >= 0; i--) {
+        const word = fallingWords[i];
+        word.y += word.speed;
+        if (word.y > app.screen.height) {
+          app.stage.removeChild(word);
+          fallingWords.splice(i, 1);
+        }
+      }
+      if (Math.random() < 0.3) {
+        createWord();
+      }
+    }
+
+    app.ticker.add(animate);
+
+    // Esperar a que termine la animación del GIF (aprox. 4s)
+    setTimeout(() => {
+      document.querySelector('.intro-stitch').style.display = 'none';
+    }, 4500);
   </script>
 </body>
 </html>

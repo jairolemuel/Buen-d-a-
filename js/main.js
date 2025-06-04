@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rainContainer = document.getElementById("rain");
 
   // Palabras para la lluvia
-  const palavras = ["Te", "amo", "Gabriel", "🧡"];
+  const palavras = ["Eu","Te", "amo", "Gabriel", "🧡"];
 
   // Sonidos (asegúrate de que estén en js/sparkle.mp3 y js/click.mp3)
   const sparkleSound = document.getElementById("sparkleSound");

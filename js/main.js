@@ -1,19 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const overlay = document.getElementById("overlay");
-  const gifContainer = document.getElementById("gif-container");
+  const gifContainer = document.querySelector(".intro-stitch");
   const rainContainer = document.getElementById("rain");
 
-  // Espera 4 segundos para mostrar la lluvia
+  const palavras = ["Te", "amo", "Gabriel", "🧡"];
+
+  // Ocultar el GIF y empezar lluvia + animación PixiJS después de 4 segundos
   setTimeout(() => {
     gifContainer.style.opacity = "0";
     setTimeout(() => {
       gifContainer.style.display = "none";
       startRain();
+      startPixiAnimation();
     }, 1000);
   }, 4000);
-
-  // Palabras para la lluvia
-  const palavras = ["Te", "amo", "Gabriel", "🧡"];
 
   function startRain() {
     setInterval(() => {
@@ -25,15 +24,8 @@ document.addEventListener("DOMContentLoaded", () => {
       palavra.style.animationDuration = 2 + Math.random() * 3 + "s";
       rainContainer.appendChild(palavra);
 
-      // Remover após animação
-      palavra.addEventListener("animationend", () => {
-        palavra.remove();
-      });
-
-      // Efeito de explosão
-      palavra.addEventListener("click", () => {
-        explode(palavra);
-      });
+      palavra.addEventListener("animationend", () => palavra.remove());
+      palavra.addEventListener("click", () => explode(palavra));
     }, 200);
   }
 
@@ -54,41 +46,124 @@ document.addEventListener("DOMContentLoaded", () => {
     rainContainer.appendChild(explosion);
     element.remove();
 
-    setTimeout(() => {
-      explosion.remove();
-    }, 1000);
+    setTimeout(() => explosion.remove(), 1000);
   }
-});
-      const velocidade = Math.random() * 2 + 1;
-      const direcaoX = Math.cos(angulo) * velocidade;
-      const direcaoY = Math.sin(angulo) * velocidade;
 
-      app.ticker.add(() => {
-        mini.x += direcaoX;
-        mini.y += direcaoY;
-        mini.alpha -= 0.02;
-        if (mini.alpha <= 0) {
-          app.stage.removeChild(mini);
+  function startPixiAnimation() {
+    // Inicializa PixiJS
+    const app = new PIXI.Application({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      backgroundAlpha: 0,
+      resolution: window.devicePixelRatio || 1,
+    });
+
+    document.getElementById("stage").appendChild(app.view);
+
+    const coracoes = [];
+
+    // Función para crear corazones que caen
+    function criarTexto() {
+      const texto = new PIXI.Text("🧡", {
+        fontFamily: "Courier New",
+        fontSize: 30,
+        fill: "#FFA500",
+        stroke: "#FF8C00",
+        strokeThickness: 2,
+        dropShadow: true,
+        dropShadowColor: "#FF8C00",
+        dropShadowBlur: 4,
+      });
+      texto.x = Math.random() * app.renderer.width;
+      texto.y = -50;
+      app.stage.addChild(texto);
+      coracoes.push(texto);
+    }
+
+    // Animación de mini corazones explosivos
+    function explodeMiniHeart(x, y) {
+      const explosion = new PIXI.Container();
+      app.stage.addChild(explosion);
+
+      for (let i = 0; i < 10; i++) {
+        const miniHeart = new PIXI.Text("🧡", {
+          fontFamily: "Courier New",
+          fontSize: 14,
+          fill: "#FFA500",
+          stroke: "#FF8C00",
+          strokeThickness: 1,
+          dropShadow: true,
+          dropShadowColor: "#FF8C00",
+          dropShadowBlur: 2,
+        });
+
+        miniHeart.x = x;
+        miniHeart.y = y;
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 3 + 1;
+        const velocity = {
+          x: Math.cos(angle) * speed,
+          y: Math.sin(angle) * speed,
+        };
+
+        miniHeart.alpha = 1;
+
+        explosion.addChild(miniHeart);
+
+        app.ticker.add(function anim() {
+          miniHeart.x += velocity.x;
+          miniHeart.y += velocity.y;
+          miniHeart.alpha -= 0.03;
+          if (miniHeart.alpha <= 0) {
+            app.ticker.remove(anim);
+            explosion.removeChild(miniHeart);
+          }
+        });
+      }
+
+      setTimeout(() => {
+        app.stage.removeChild(explosion);
+      }, 1000);
+    }
+
+    // Detectar click en corazones para explotar mini corazones
+    app.stage.interactive = true;
+    app.stage.on("pointerdown", (event) => {
+      const pos = event.data.global;
+      coracoes.forEach((texto, index) => {
+        const bounds = texto.getBounds();
+        if (
+          pos.x >= bounds.x &&
+          pos.x <= bounds.x + bounds.width &&
+          pos.y >= bounds.y &&
+          pos.y <= bounds.y + bounds.height
+        ) {
+          explodeMiniHeart(texto.x, texto.y);
+          app.stage.removeChild(texto);
+          coracoes.splice(index, 1);
         }
       });
-    }
-  }
+    });
 
-  app.ticker.add(() => {
-    coracoes.forEach(texto => {
-      texto.y += 2;
-      if (texto.y > app.renderer.height) {
-        texto.y = -50;
-        texto.x = Math.random() * app.renderer.width;
+    // Animar caída de corazones
+    app.ticker.add(() => {
+      coracoes.forEach((texto) => {
+        texto.y += 2;
+        if (texto.y > app.renderer.height) {
+          texto.y = -50;
+          texto.x = Math.random() * app.renderer.width;
+        }
+      });
+
+      if (Math.random() < 0.1) {
+        criarTexto();
       }
     });
 
-    if (Math.random() < 0.1) {
-      criarTexto();
-    }
-  });
-
-  window.addEventListener('resize', () => {
-    app.renderer.resize(window.innerWidth, window.innerHeight);
-  });
-}
+    // Ajustar tamaño al redimensionar ventana
+    window.addEventListener("resize", () => {
+      app.renderer.resize(window.innerWidth, window.innerHeight);
+    });
+  }
+});

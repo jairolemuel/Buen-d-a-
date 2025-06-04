@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title> Eu te amo 🧡</title>
+  <title>Eu te amo 🧡</title>
   <style>
     html, body {
       margin: 0;
@@ -125,7 +125,7 @@
   <!-- Introdução com Stitch -->
   <div class="intro-stitch">
     <img src="https://media.giphy.com/media/l0MYEWpv7Ue0RFVaE/giphy.gif" alt="Stitch animado" />
-    <div class="mensagem">Bom dia mi vida🧡</div>
+    <div class="mensagem">Bom dia mi vida 🧡</div>
   </div>
 
   <!-- Contêiner para a chuva de palavras -->
@@ -133,13 +133,16 @@
 
   <!-- Container PixiJS -->
   <div id="stage"></div>
-<audio id="sparkleSound" src="sparkle.mp3" preload="auto"></audio>
-<audio id="clickSound" src="click.mp3" preload="auto"></audio>
-  <!-- PIXI.js -->
+
+  <!-- Áudios corrigidos (em pasta js/) -->
+  <audio id="sparkleSound" src="js/sparkle.mp3" preload="auto"></audio>
+  <audio id="clickSound" src="js/click.mp3" preload="auto"></audio>
+    <!-- PIXI.js -->
   <script src="https://pixijs.download/release/pixi.min.js"></script>
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-  <!-- Tu script principal -->
+  <!-- Tu script principal (no olvides colocar main.js dentro de js/) -->
   <script src="js/main.js?v=1.0.3"></script>
 </body>
 </html>
